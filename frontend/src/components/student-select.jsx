@@ -8,6 +8,7 @@ export function StudentSelect({students, setData}) {
     disablePortal
     id="students-auto-complete"
     options={students}
+    // getOptionSelected = {(option, value) => option.id === value.id}
     onChange={(event, value) => setData(value)}
     sx={{ width: 300 }}
     getOptionLabel = {option => option.name}

@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
   res.send(result); 
 });
 
-router.get('/history', async (req, res) => {
+router.get('/history/:cohortId', async (req, res) => {
   const result = await getTransactionHistory();
   res.send(result);
 });

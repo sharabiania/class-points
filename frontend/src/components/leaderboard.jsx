@@ -1,5 +1,5 @@
 export function Leaderboard({students}) {
-  console.log('leaders: ', students);
+  
   return (<table>
     <tbody>
     {
