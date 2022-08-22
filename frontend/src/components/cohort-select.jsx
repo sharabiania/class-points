@@ -14,7 +14,7 @@ export function CohortSelect({cohorts, setData}) {
 
   return (
     <Container>
-      <Autocomplete
+      <Autocomplete      
       disablePortal
       onChange={(event, value) => { setState({btn: false, selected: value})}}
       id="cohorts-auto-complete"
