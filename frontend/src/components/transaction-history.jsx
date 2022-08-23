@@ -5,34 +5,43 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { Pagination, Skeleton } from '@mui/material';
 
-export function TransactionHistory({data}) {
-  return (
+export function TransactionHistory({ historyData, onPageChange }) {
+  const { data, total, pageSize } = historyData;
+  const numberOfPages = Math.ceil(total / pageSize);
+  return (data &&
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Point Value</TableCell>
-            <TableCell>Point Type</TableCell>
-            <TableCell>Timestamp</TableCell>
-            <TableCell>Notes</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
+     
+        <Table
+          sx={{ minWidth: 650 }}
+          size="small"
+          stickyHeader
+          aria-label="transaction history table">
+          <TableHead>
+            <TableRow hover>
+              <TableCell>Name</TableCell>
+              <TableCell>Point Value</TableCell>
+              <TableCell>Point Type</TableCell>
+              <TableCell>Timestamp</TableCell>
+              <TableCell>Notes</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {
-              data.map((x, index) => (
-                <TableRow key={'row'+ index}>
-                  <TableCell>{x.name}</TableCell>
-                  <TableCell>{x.point_value}</TableCell>
-                  <TableCell>{x.point_type}</TableCell>
-                  <TableCell>{x.time_stamp}</TableCell>
-                  <TableCell>{x.note}</TableCell>
+              data && data.map((x, index) => (
+                <TableRow hover key={'row' + index}>
+                  <TableCell width={200}>{x.name}</TableCell>
+                  <TableCell width={90}>{x.point_value}</TableCell>
+                  <TableCell width={120}>{x.point_type}</TableCell>
+                  <TableCell width={220}>{x.time_stamp}</TableCell>
+                  <TableCell width={300}>{x.note}</TableCell>
                 </TableRow>
               ))
             }
-        </TableBody>
-      </Table>
+          </TableBody>
+        </Table>
+      <Pagination count={numberOfPages} onChange={(event, value) => onPageChange(value)} />
     </TableContainer>
   )
 }

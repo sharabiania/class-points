@@ -1,10 +1,14 @@
-import { Card, CardContent, CardActions, Button, Stack, TextField, CircularProgress } from '@mui/material';
+import { Card, CardContent, CardActions, Stack, TextField } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { StudentSelect } from './student-select';
 import { PointSelect } from './point-type-select';
 import { apiUrl } from '../config/config';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SaveIcon from '@mui/icons-material/Save';
 
-export default function AddTransaction({ students, pointTypes, onComplete, onPending}) {
+
+
+export default function AddTransaction({ students, pointTypes, onComplete, onPending, onError }) {
 
   const [progress, setProgress] = useState(false);
   const [disabled, setDisabled] = useState(true);
@@ -32,8 +36,12 @@ export default function AddTransaction({ students, pointTypes, onComplete, onPen
         </Stack>
       </CardContent>
       <CardActions>
-        <Button
+
+        <LoadingButton
+          loading={progress}
           disabled={disabled}
+          loadingPosition="end"
+          endIcon={<SaveIcon />}
           variant="contained"
           onClick={() =>
             addTransaction(selectedStudent.st_id,
@@ -42,22 +50,24 @@ export default function AddTransaction({ students, pointTypes, onComplete, onPen
               onComplete,
               onPending,
               setProgress,
-              setDisabled
+              setDisabled,
+              onError
             )}>
-          Add Transaction 
-         {progress && <CircularProgress size="20px" />}
-        </Button>
+          Add Transaction
+
+        </LoadingButton>
       </CardActions>
     </Card>
   );
 }
 
 
-function addTransaction(sId, pId, note, onComplete, onPending, setProgress, setDisabled) {
+function addTransaction(sId, pId, note, onComplete, onPending, setProgress, setDisabled, onError) {
   if (!sId || !pId) return;
   setProgress(true);
   setDisabled(true);
-  if(onPending) onPending();  
+  
+  if (onPending) onPending();
   fetch(apiUrl + '/transactions', {
     method: 'POST',
     headers: {
@@ -67,12 +77,12 @@ function addTransaction(sId, pId, note, onComplete, onPending, setProgress, setD
       sId, pId, note
     })
   })
-    .then(res => {     
-      if(onComplete) onComplete();
+    .then(res => {
+      if (onComplete) onComplete();
     })
     .catch(err => {
-      // TODO handle error:
       console.error('error while adding transaction: ', err);
+      if (onError) onError();
     })
     .finally(() => {
       setProgress(false);

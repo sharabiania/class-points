@@ -4,7 +4,7 @@ function getStudents(cohortId) {
   return new Promise((resolve, reject) => {
     const query = 'SELECT * FROM students WHERE c_id=?';
     db.query(query, [cohortId], (err, res) => {
-      if (err) reject(err);              
+      if (err) reject(err);
       resolve(res);
     });
   });
@@ -51,13 +51,23 @@ function addTransaction(studentId, pointTypeId, notes) {
   });
 }
 
-function getTransactionHistory() {
+function getTransactionHistory(pageNumber, pageSize = 20) {
+  const offset = pageNumber * pageSize;
   return new Promise((resolve, reject) => {
-    const query = 'call transaction_history()';
-    db.query(query, (err, res) => {
+    const countQuery = 'SELECT COUNT(*) FROM transactions;';
+    db.query(countQuery, (err, countRes) => {
       if (err) reject(err);
-      resolve(res);
-    })
+      const query = 'call transaction_history(?, ?)';
+      db.query(query, [pageSize, offset], (err, res) => {
+        if (err) reject(err);
+        resolve({
+          total: countRes[0]["COUNT(*)"],
+          pageSize,
+          page: pageNumber,
+          data: res[0],
+        });
+      });
+    });
   });
 }
 
@@ -68,16 +78,28 @@ function getPointTypes() {
       if (err) reject(err);
       resolve(res);
     });
-  }); 
+  });
 }
 
 function createPointType(name, pointValue, description) {
   return new Promise((resolve, reject) => {
-    const query = 'INSERT INTO point_types (name, point_value, description) value (?, ?, ?)'    
+    const query = 'INSERT INTO point_types (name, point_value, description) value (?, ?, ?)'
     db.query(query, [name, pointValue, description], (err, res) => {
       if (err) reject(err);
       resolve(res);
     })
+  });
+}
+
+function getActiveCohort() {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM cohorts WHERE finalized=false';
+    db.query(query, (err, res) => {
+      if (err) reject(err);
+      if (res && res.length !== 1)
+        reject('there are multiple active cohorts. correct the data in database.');
+      resolve(res);
+    });
   });
 }
 
@@ -104,15 +126,16 @@ function addCohort(name) {
 module.exports = {
   addStudent,
   getStudents,
-  getLeaderboard, 
+  getLeaderboard,
 
   addTransaction,
   getTransactions,
-  getTransactionHistory, 
+  getTransactionHistory,
 
   createPointType,
   getPointTypes,
 
   addCohort,
   getCohorts,
- };
+  getActiveCohort
+};

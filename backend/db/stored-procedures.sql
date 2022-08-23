@@ -21,7 +21,10 @@ END ;;
 DELIMITER ;
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `transaction_history`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `transaction_history`(
+  in page_size INT,
+  int off_set INT
+)
 BEGIN
 	select 
 		students.name, 		
@@ -32,7 +35,8 @@ BEGIN
 	from transactions
     inner join point_types on transactions.ty_id = point_types.ty_id
 	inner join students on transactions.st_id =students.st_id
-	order by time_stamp desc;
+	order by time_stamp desc
+  limit page_size offset off_set;
 END ;;
 DELIMITER ;
 
