@@ -10,7 +10,7 @@ export function Leaderboard({ students, loading }) {
             students.map((x, index) => (
               <TableRow hover key={'ldr-row' + index}>
                 <TableCell>{
-                  index === 0 ? '1️st 🏆 🥇' :
+                  index === 0 ? '1️st 🥇' :
                     index === 1 ? '2nd 🥈' :
                       index === 2 ? '3rd 🥉' :
                         index + 1

@@ -10,7 +10,7 @@ export default function Price() {
     />
     <CardContent>
       <Typography gutterBottom variant="h5" component="div">
-        Starbucks Giftcard
+      🏆 Starbucks Giftcard
       </Typography>
       <Typography variant="body2" color="text.secondary">
         Top 3 students in the leaderboard will be awarded Starbucks giftcards.
