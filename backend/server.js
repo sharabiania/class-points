@@ -3,10 +3,10 @@ const cors = require('cors');
 const apiRoutes = require('./api');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 
 app.use(cors({
-  origin: 'http://localhost:3001'
+  origin: process.env.CORS_ORIGIN
 }));
 app.use(express.json());
 
