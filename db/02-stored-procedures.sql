@@ -23,7 +23,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `transaction_history`(
   in page_size INT,
-  int off_set INT
+  in off_set INT
 )
 BEGIN
 	select 

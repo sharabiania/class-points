@@ -136,7 +136,10 @@ function App() {
         </Container>
       </Container>
       <Box>
-        <BottomNavigation sx={{ backgroundColor: "gray" }}></BottomNavigation>
+        <BottomNavigation sx={{ backgroundColor: "gray" }}>
+
+        </BottomNavigation>
+        <i>version 0.0.4</i>
       </Box>
       <Snackbar
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

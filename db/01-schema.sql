@@ -1,13 +1,13 @@
-CREATE DATABASE class_points_dev;
+CREATE DATABASE IF NOT EXISTS class_points_dev;
 
 USE class_points_dev;
 
 CREATE TABLE `cohorts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) DEFAULT NULL,
-  'finalized' BOOL default false,
+  `finalized` BOOL default false,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `point_types`

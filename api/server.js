@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const apiRoutes = require('./api');
+const apiRoutes = require('./routes');
 
 const app = express();
 const port = process.env.PORT;

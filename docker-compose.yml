@@ -1,0 +1,31 @@
+version: "3.8"
+
+volumes:
+  mysql-data:
+
+services:
+  db:
+    build: ./db
+    env_file:
+      - ./db/.env
+            
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  api:
+    build: ./api
+    env_file: ./api/.env
+    ports:
+      - "4321:4321"
+    depends_on:
+      - db
+    restart: on-failure
+  app:
+    image: class_points_app
+    build: ./app
+    environment:
+      API_URL: http://localhost:4321/api
+   
+    ports:
+      - 3000:3000
