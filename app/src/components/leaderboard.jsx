@@ -1,4 +1,4 @@
-import { TableContainer, Table, TableRow, TableCell, TableBody, Paper, Skeleton } from "@mui/material";
+import { TableContainer, Table, TableRow, TableCell, TableBody, Paper } from "@mui/material";
 
 export function Leaderboard({ students, loading }) {
 

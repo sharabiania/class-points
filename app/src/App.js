@@ -132,6 +132,7 @@ function App() {
             <TransactionHistory
               historyData={history}
               onPageChange={(page) => setPage(page - 1)}
+              page={page + 1}
             />}
         </Container>
       </Container>
@@ -139,7 +140,7 @@ function App() {
         <BottomNavigation sx={{ backgroundColor: "gray" }}>
 
         </BottomNavigation>
-        <i>version 0.0.4</i>
+        <i>version 0.0.5</i>
       </Box>
       <Snackbar
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

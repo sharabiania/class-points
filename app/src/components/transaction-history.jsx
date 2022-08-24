@@ -5,9 +5,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Pagination, Skeleton } from '@mui/material';
+import { Pagination } from '@mui/material';
 
-export function TransactionHistory({ historyData, onPageChange }) {
+export function TransactionHistory({ historyData, page, onPageChange }) {
   const { data, total, pageSize } = historyData;
   const numberOfPages = Math.ceil(total / pageSize);
   return (data &&
@@ -41,7 +41,7 @@ export function TransactionHistory({ historyData, onPageChange }) {
             }
           </TableBody>
         </Table>
-      <Pagination count={numberOfPages} onChange={(event, value) => onPageChange(value)} />
+      <Pagination count={numberOfPages} page={page} onChange={(event, value) => onPageChange(value)} />
     </TableContainer>
   )
 }
