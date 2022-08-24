@@ -4,12 +4,12 @@
 ## API `.env`
 
 ```
-DB_HOST="localhost"
+DB_HOST="db"
 DB_NAME=""
 DB_USER=""
 DB_PASS=""
 PORT=4321
-CORS_ORIGIN=""
+CORS_ORIGIN="http://localhost:4000"
 ```
 
 ## DB `.env`
@@ -25,8 +25,11 @@ MYSQL_DATABASE=""
 docker-compose up --build
 ```
 
-# Run Without Re-build
+# Run Docker Container Without Re-build
 
 ```
 docker-compose up
 ```
+
+# Use App
+- Navigate to `localhost:4000` in your browser.

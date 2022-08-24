@@ -30,7 +30,7 @@ insert into students (name, c_id) values
   ('kiss', 1),
   ('guns n roses', 1),
   ('judas priest', 1),
-  ('robert plant', 1),
+  ('led zepplin', 1),
   ('pink floyd', 1),
   ('eloy', 1),
   ('camel', 1),

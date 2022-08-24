@@ -8,7 +8,8 @@ services:
     build: ./db
     env_file:
       - ./db/.env
-            
+    ports:
+      - "6033:3306"
     restart: always
     volumes:
       - mysql-data:/var/lib/mysql
@@ -28,4 +29,4 @@ services:
       API_URL: http://localhost:4321/api
    
     ports:
-      - 3000:3000
+      - 4000:3000
