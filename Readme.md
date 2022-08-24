@@ -1,18 +1,19 @@
 # Config
-- Create a `.env` in each `api`, `db` folders.
+- Create a `.env.prod` in each `api`, `db` folders.
 
-## API `.env`
+## API `.env.prod`
 
 ```
+STAGE="prod"
 DB_HOST="db"
-DB_NAME=""
 DB_USER=""
 DB_PASS=""
+DB_NAME="class_points_prod"
 PORT=4321
-CORS_ORIGIN="http://localhost:4000"
+CORS_ORIGIN='http://localhost:4000'
 ```
 
-## DB `.env`
+## DB `.env.prod`
 
 ```
 MYSQL_ROOT_PASSWORD=""

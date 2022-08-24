@@ -7,7 +7,7 @@ services:
   db:
     build: ./db
     env_file:
-      - ./db/.env
+      - ./db/.env.prod
     ports:
       - "6033:3306"
     restart: always
@@ -16,7 +16,7 @@ services:
 
   api:
     build: ./api
-    env_file: ./api/.env
+    env_file: ./api/.env.prod
     ports:
       - "4321:4321"
     depends_on:
