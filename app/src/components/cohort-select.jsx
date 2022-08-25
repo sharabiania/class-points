@@ -22,6 +22,7 @@ export function CohortSelect({ cohorts, setData, defaultCohort }) {
             options={cohorts}
             sx={{ width: 300 }}
             getOptionLabel={option => option.name}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             renderInput={(params) => <TextField {...params} label="Cohorts" />}
           />}
         <Button
