@@ -59,7 +59,13 @@ async function addOrUpdateOldRank(stId, ranking) {
   const cohortId = await getCohortId(stId);
   const query2 = 'SELECT should_update FROM should_update_ranks WHERE c_id=?';
   const query3 = 'INSERT INTO old_ranks (st_id, ranking) VALUES (?, ?) ON DUPLICATE KEY UPDATE st_id=?, ranking=?;';
-  const { should_update: shouldUpdate } = await runQuery(query2, [cohortId]);
+  let shouldUpdate = true;
+  try {
+    shouldUpdate = (await runQuery(query2, [cohortId])).should_update;
+  }
+  catch(err) {
+    shouldUpdate = true;
+  }
   if (shouldUpdate) {
     await runQuery(query3, [stId, ranking, stId, ranking]);
     await updateShouldUpdate(cohortId, 0);
@@ -67,12 +73,12 @@ async function addOrUpdateOldRank(stId, ranking) {
 }
 
 function runQuery(query, params) {
-  // console.log('running query: ', query, 'params: ', params);
+  console.log('running query: ', query, 'params: ', params);
   return new Promise((resolve, reject) => {
     db.query(query, params, (err, res) => {
       if (err) reject(err);
-      // console.log('query res: ', res);
-      if (!res) resolve('success');
+      console.log('query res: ', res);
+      if (!res || res === []) resolve([]);
       else resolve(res[0]);
     });
   });
