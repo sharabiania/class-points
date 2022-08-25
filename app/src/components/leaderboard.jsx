@@ -34,7 +34,7 @@ export function Leaderboard({ students }) {
             students.map((x, index) => (
               <TableRow hover key={'ldr-row' + index}>
                 <TableCell>{x.up_down > 0 ? <UpArrow value={x.up_down} /> :
-                  x.up_down < 0 ? <DownArrow value={x.up_down} /> : x.up_down}</TableCell>
+                  x.up_down < 0 ? <DownArrow value={x.up_down} /> : ''}</TableCell>
                 <TableCell>{
                   x.ranking === 1 ? '1️st 🥇' :
                     x.ranking === 2 ? '2nd 🥈' :
