@@ -8,14 +8,14 @@ router.post('/register', async (req, res) => {
     const newUser = await createUser(req.body.username, hashedPw, req.body.cohortId);
     res.sendStatus(201);
   }
-  catch(err) { 
+  catch (err) {
     console.error(err);
     res.status(400).json(err);
   }
 });
 
 router.post('/login', async (req, res) => {
-  try {    
+  try {
     const user = await findUser(req.body.username);
     console.log('user: ', user);
     if (!user) throw new Error('user not found.');
@@ -25,17 +25,24 @@ router.post('/login', async (req, res) => {
 
     req.session.save(() => {
       req.session.userId = user.id,
-      req.session.username = user.username,
-      req.session.loggedIn = true
+        req.session.username = user.username,
+        req.session.loggedIn = true
       // res.setHeader('Set-Cookie', 'shara=' + req.sessionID);
       res.json(user);
     });
-        
+
   }
-  catch(err) {
+  catch (err) {
     console.error('login error: ', err);
     res.status(400).json(err);
   }
+});
+
+router.get('/check_login', (req, res) => {
+  if (!req.session.userId)
+    return res.status(403).json({ loggedIn: null });
+  else
+    return res.json({ loggedIn: req.session.username });
 });
 
 router.post('/logout', (req, res) => {

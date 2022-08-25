@@ -7,8 +7,9 @@ export function CohortSelect({ cohorts, setData, defaultCohort }) {
 
   return (
     <Container>
+      {defaultCohort &&
       <Stack spacing={2} direction="row">
-        {defaultCohort &&
+        
           <Autocomplete
             disablePortal
             onChange={(event, value) => {
@@ -24,7 +25,7 @@ export function CohortSelect({ cohorts, setData, defaultCohort }) {
             getOptionLabel={option => option.name}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             renderInput={(params) => <TextField {...params} label="Cohorts" />}
-          />}
+          />
         <Button
           color="inherit"
           variant="outlined"
@@ -34,7 +35,7 @@ export function CohortSelect({ cohorts, setData, defaultCohort }) {
             setState({ ...state, btn: true });
           }}
         >Change Cohort</Button>
-      </Stack>
+      </Stack>}
     </Container>
   )
 }

@@ -5,38 +5,16 @@ import { Leaderboard } from './components/leaderboard';
 import { TransactionHistory } from './components/transaction-history';
 import {
   AppBar, Skeleton, Stack, Box,
-  Toolbar, Typography, Button, Container, Drawer,
+  Toolbar, Typography, Container, Drawer,
   Divider, BottomNavigation, Snackbar, Fab
 } from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import LoadingButton from '@mui/lab/LoadingButton';
-
 import AddTransaction from './components/add-transaction';
 import Price from './components/price';
-import LoginDialog from './components/login-dialog';
 import { apiUrl } from './config/config';
+import LoginToolbar from './components/login-toolbar';
 
 
-function logout(setLoggedIn, setProgress) {
-  setProgress(true);
-  fetch(apiUrl + '/auth/logout', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-    // .then(res => res.json())
-    .then(data => {
-      setLoggedIn(false);
-      document.cookie = 'connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    })
-    .catch(err => {
-      console.log('fetch logout error: ', err);
-    })
-    .finally(() => setProgress(false));
-}
 
 
 function App() {
@@ -53,11 +31,22 @@ function App() {
   const [snack, setSnack] = useState({ open: false, msg: '' });
   const [leaderLoad, setLeaderLoad] = useState(false);
   const [transLoad, setTransLoad] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState('');
-  const [logoutProgress, setLogoutProgress] = useState(false);
+  const [checkLoginProgress, setCheckLoginProgress] = useState(true);
 
   useEffect(() => {
+    // check login
+    setCheckLoginProgress(true);
+    fetch(apiUrl + '/auth/check_login', {
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.loggedIn)
+          setLoggedIn(data.loggedIn);
+        // else setLoggedIn('')
+      })
+      .finally(() => setCheckLoginProgress(false));
     // get cohorts
     fetch(apiUrl + '/cohorts')
       .then(res => res.json())
@@ -108,30 +97,24 @@ function App() {
 
   return (
     <div className="app">
-      <LoginDialog open={loginOpen}
-        onClose={() => setLoginOpen(false)}
-        onSuccess={user => { setLoggedIn(user.username); setLoginOpen(false); }}
-        onError={err => setSnack({ open: true, msg: err })} />
+
       <AppBar position="static">
         <Toolbar style={{ padding: '15px' }}>
           <CohortSelect cohorts={cohorts} setData={setSelectedCohort} defaultCohort={selectedCohort} />
-          {!loggedIn && <Button color="inherit" onClick={() => setLoginOpen(true)}>Login</Button>}
-          {loggedIn && <LoadingButton
-            color="inherit"
-            onClick={() => logout(setLoggedIn, setLogoutProgress)}
-            loadingPosition='end'
-            endIcon={<LogoutIcon />}
-            loading={logoutProgress}>
-            Logout {loggedIn}
-          </LoadingButton>}
-          {loggedIn && <Fab
-            style={{ position: 'fixed', bottom: '30px', right: '30px' }}
-            color='primary'
-            onClick={() => setOpenDrawer(true)}>
-            <ControlPointIcon />
-          </Fab>}
+          {!checkLoginProgress && <LoginToolbar
+            onLoginError={err => setSnack({ open: true, msg: err })}
+            loggedIn={loggedIn}
+            setLoggedIn={setLoggedIn}
+          />}
         </Toolbar>
       </AppBar>
+
+      {loggedIn && <Fab
+        style={{ position: 'fixed', bottom: '30px', right: '30px' }}
+        color='primary'
+        onClick={() => setOpenDrawer(true)}>
+        <ControlPointIcon />
+      </Fab>}
 
       <Container sx={{ margin: "20px" }}>
 
