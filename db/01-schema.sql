@@ -37,6 +37,19 @@ CREATE TABLE `students` (
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+
+create table should_update_ranks (
+	c_id int not null unique,
+  should_update bool default true,  
+  constraint FK_should_update_cohort_id foreign key (c_id) references cohorts(id)
+);
+
+create table old_ranks (
+	st_id int not null unique,
+  ranking int default 0,  
+  constraint FK_old_ranks_student_id foreign key (st_id) references students(st_id)
+);
+
 --
 -- Table structure for table `transactions`
 --

@@ -25,10 +25,59 @@ function getLeaderboard(cohortId) {
     const query = 'call leaderboard(?)';
     db.query(query, [cohortId], (err, res) => {
       if (err) reject(err);
-      resolve(res);
+      resolve(res[0]);
     });
   });
 }
+
+function getOldRanks(cohortId) {
+  return new Promise((resolve, reject) => {
+
+    const query = 'SELECT * FROM old_ranks JOIN students ON old_ranks.st_id=students.st_id WHERE students.c_id=?';
+    db.query(query, [cohortId], (err, res) => {
+      if (err) reject(err);
+      resolve(res);
+    });
+
+  });
+}
+
+async function updateShouldUpdate(cohortId, shouldUpdate) {
+  const query = 'INSERT INTO should_update_ranks (c_id, should_update) value (?, ?) ON DUPLICATE KEY UPDATE c_id=?, should_update=?;';
+  return await runQuery(query, [cohortId, shouldUpdate, cohortId, shouldUpdate]);
+}
+
+async function getCohortId(stId) {
+  console.log('getCohortId - stId: ', stId);
+  const query1 = 'SELECT c_id FROM students WHERE st_id = ?';
+  const { c_id: cohortId } = await runQuery(query1, [stId]);
+  return cohortId;
+}
+
+async function addOrUpdateOldRank(stId, ranking) {
+
+  const cohortId = await getCohortId(stId);
+  const query2 = 'SELECT should_update FROM should_update_ranks WHERE c_id=?';
+  const query3 = 'INSERT INTO old_ranks (st_id, ranking) VALUES (?, ?) ON DUPLICATE KEY UPDATE st_id=?, ranking=?;';
+  const shouldUpdate = await runQuery(query2, [cohortId]);
+  if (shouldUpdate) {
+    await runQuery(query3, [stId, ranking, stId, ranking]);
+    await updateShouldUpdate(cohortId, false);
+  }
+}
+
+function runQuery(query, params) {
+  console.log('running query: ', query, 'params: ', params);
+  return new Promise((resolve, reject) => {
+    db.query(query, params, (err, res) => {
+      if (err) reject(err);
+      console.log('query res: ', res);
+      if(!res) resolve('success');
+      else resolve(res[0]);
+    });
+  });
+}
+
 
 function getTransactions() {
   return new Promise((resolve, reject) => {
@@ -40,7 +89,10 @@ function getTransactions() {
   });
 }
 
-function addTransaction(studentId, pointTypeId, notes) {
+async function addTransaction(studentId, pointTypeId, notes) {  
+  const cohortId = await getCohortId(studentId);
+  console.log('addTrans c_id: ', cohortId);
+  await updateShouldUpdate(cohortId, true);
   return new Promise((resolve, reject) => {
     const query = 'INSERT INTO transactions (st_id, ty_id, note) values (?, ?, ?)';
     db.query(query, [studentId, pointTypeId, notes], (err, res) => {
@@ -138,7 +190,7 @@ function findUser(username) {
     const query = 'SELECT * FROM users WHERE username=?;';
     db.query(query, [username], (err, res) => {
       if (err) reject(err);
-      if(!res || res.length !== 1) 
+      if (!res || res.length !== 1)
         reject('No user found or, multiple users with the same username');
       resolve(res[0]);
     })
@@ -149,6 +201,8 @@ module.exports = {
   addStudent,
   getStudents,
   getLeaderboard,
+  getOldRanks,
+  addOrUpdateOldRank,
 
   addTransaction,
   getTransactions,

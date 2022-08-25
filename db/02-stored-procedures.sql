@@ -8,15 +8,26 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `leaderboard`(
   in cohort_id int
 )
 BEGIN
-select 
-students.name,
-sum(point_types.point_value)
-from students 
-join transactions on students.st_id = transactions.st_id
-join point_types on transactions.ty_id = point_types.ty_id
-where students.c_id=cohort_id
-group by students.st_id
-order by sum(point_types.point_value) desc;
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `leaderboard`(
+	in cohort_id int
+)
+BEGIN
+select *, rank() over (order by total_points desc) ranking
+from (
+	select 
+	students.st_id,
+	students.name,
+	sum(point_types.point_value) as total_points
+	from students 
+	join transactions on students.st_id = transactions.st_id
+	join point_types on transactions.ty_id = point_types.ty_id
+	where students.c_id=cohort_id
+	group by students.st_id
+	order by sum(point_types.point_value) desc
+) as leaderboard;
+END
+
 END ;;
 DELIMITER ;
 
@@ -26,8 +37,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `transaction_history`(
   in off_set INT
 )
 BEGIN
-	select 
-		students.name, 		
+	select
+        students.st_id,
+		    students.name, 		
         point_types.point_value,
         point_types.name as point_type,
         time_stamp,

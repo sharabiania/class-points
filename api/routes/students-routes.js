@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getStudents, addStudent, getLeaderboard } = require('../services/db-service');
+const { getStudents, addStudent, getLeaderboard, getOldRanks, addOrUpdateOldRank } = require('../services/db-service');
 
 router.get('/:cohortId', async (req, res) => {
   try {
@@ -24,9 +24,26 @@ router.post('/', async (req, res) => {
 router.get('/leaderboard/:cohortId', async (req, res) => {
   if (!req.params.cohortId) res.status(500).json({ err: 'cohortId is required.' });
   try {
-    const result = await getLeaderboard(req.params.cohortId);
-    res.send(result);
+    const leaders = await getLeaderboard(req.params.cohortId);
+    const oldRanks = await getOldRanks(req.params.cohortId);
+    // TODO find a better way to convert to map.
+    const rankMap = {};
+    for (const x of oldRanks)
+      rankMap[x.st_id] = x.ranking;
+    
+    for (const x of leaders) {
+      if (rankMap[x.st_id])
+        x.old_rank = rankMap[x.st_id];
+      else x.old_rank = x.ranking;
+      x.up_down = x.old_rank - x.ranking;
+
+      await addOrUpdateOldRank(x.st_id, x.ranking);
+
+    }
+
+    res.send(leaders);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 });

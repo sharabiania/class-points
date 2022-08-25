@@ -81,7 +81,7 @@ function App() {
     fetch(apiUrl + '/students/leaderboard/' + selectedCohort.id)
       .then(res => res.json())
       .then(data => {
-        setLeaders(data[0]);
+        setLeaders(data);
         setLeaderLoad(false);
       });
 

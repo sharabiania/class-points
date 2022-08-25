@@ -4,6 +4,8 @@ import LoginDialog from "./login-dialog";
 import { useState } from "react";
 import { apiUrl } from '../config/config';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
+
 
 
 export default function LoginToolbar({ loggedIn,
@@ -21,7 +23,12 @@ export default function LoginToolbar({ loggedIn,
         onSuccess={user => { setLoggedIn(user.username); setLoginOpen(false); }}
         onError={err => onLoginError(err)} />
 
-      {!loggedIn && <Button color="inherit" onClick={() => setLoginOpen(true)}>Login</Button>}
+      {!loggedIn && <LoadingButton 
+        loadingPosition='end'
+        loading={logoutProgress}
+        endIcon={<LoginIcon />}
+        color="inherit" 
+        onClick={() => setLoginOpen(true)}>Login</LoadingButton>}
       {loggedIn && <LoadingButton
         color="inherit"
         onClick={() => logout(setLoggedIn, setLogoutProgress)}
