@@ -79,7 +79,8 @@ function addTransaction(sId, pId, note, onComplete, onPending, setProgress, setD
     })
   })
     .then(res => {
-      if (onComplete) onComplete();
+      if (res.status === 403) if (onError) onError('You must login!')
+      else if (onComplete) onComplete();
     })
     .catch(err => {
       console.error('error while adding transaction: ', err);

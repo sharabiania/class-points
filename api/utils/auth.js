@@ -1,18 +1,15 @@
 const bcrypt = require('bcrypt');
 
-const withAuth = (req, res, next) => {
-  console.log('req.sessionID: ', req.sessionID);
-  console.log('with auth req.session: ', req.session);
+const withAuth = (req, res, next) => {  
   if (!req.session.userId) {
-    res.redirect("/login");
+    // res.redirect("/login");
+    res.status(403).json('you must login for this action');
   } else {
     next();
   }
 };
 
-function checkPassword(loginPass, password) {
-  console.log('loginPass: ', loginPass);
-  console.log('hash: ', password);
+function checkPassword(loginPass, password) {  
   return bcrypt.compareSync(loginPass, password)
 }
 

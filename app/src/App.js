@@ -3,9 +3,14 @@ import { CohortSelect } from './components/cohort-select';
 import './App.css';
 import { Leaderboard } from './components/leaderboard';
 import { TransactionHistory } from './components/transaction-history';
-import { AppBar, Dialog, DialogTitle, Skeleton, Stack, Box, Toolbar, Typography, Button, Container, Drawer, Divider, BottomNavigation, Snackbar, TextField } from '@mui/material';
+import {
+  AppBar, Skeleton, Stack, Box,
+  Toolbar, Typography, Button, Container, Drawer,
+  Divider, BottomNavigation, Snackbar
+} from '@mui/material';
 import AddTransaction from './components/add-transaction';
 import Price from './components/price';
+import LoginDialog from './components/login-dialog';
 import { apiUrl } from './config/config';
 
 
@@ -15,61 +20,18 @@ function logout(setLoggedIn) {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json'
-    }    
+    }
   })
-    .then(res => {                
-      if(!res.ok) return null;
-      else return res.json();
-    })
+    // .then(res => res.json())
     .then(data => {
-      console.log('logout data: ', data);
-      if(!data) console.log('error loggin out');
-      else setLoggedIn('');
+      setLoggedIn(false);
+      document.cookie = 'connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     })
     .catch(err => {
-      console.log('fetch logout error: ', err);    
+      console.log('fetch logout error: ', err);
     })
 }
 
-
-function LoginDialog({ open, onClose, onSuccess, onError }) {
-  const [user, setUser] = useState('');
-  const [pass, setPass] = useState('');
-
-  function login(user, pass) {
-    fetch(apiUrl + '/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username: user, password: pass })
-    })
-      .then(res => {                
-        if(!res.ok) return null;
-        else return res.json();
-      })
-      .then(data => {
-        console.log('login data: ', data);
-        if(!data) onError('Error logging in');
-        else onSuccess(data);
-      })
-      .catch(err => {
-        console.log('fetch login error: ', err);
-        onError(err);
-      })
-  }
-  
-  
-
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Login</DialogTitle>
-      <TextField id='login-user' label='username' variant='outlined' value={user} onChange={e => setUser(e.target.value)} />
-      <TextField id='login-pass' label='password' variant='outlined' value={pass} onChange={e => setPass(e.target.value)} />
-      <Button onClick={() => login(user, pass)}>Login</Button>
-    </Dialog>
-  )
-}
 
 function App() {
 
@@ -92,7 +54,7 @@ function App() {
     // get cohorts
     fetch(apiUrl + '/cohorts')
       .then(res => res.json())
-      .then(data => {        
+      .then(data => {
         setCohorts(data)
       });
 
@@ -104,7 +66,7 @@ function App() {
     // get point types
     fetch(apiUrl + '/pointTypes')
       .then(res => res.json())
-      .then(data => {        
+      .then(data => {
         setPointTypes(data)
       });
 
@@ -142,9 +104,7 @@ function App() {
       <LoginDialog open={loginOpen}
         onClose={() => setLoginOpen(false)}
         onSuccess={user => { setLoggedIn(user.username); setLoginOpen(false); }}
-        onError={err => { 
-          console.info('hello');
-          setSnack({ open: true, msg: err }) }} />
+        onError={err => setSnack({ open: true, msg: err })} />
       <AppBar position="static">
         <Toolbar style={{ padding: '15px' }}>
           <CohortSelect cohorts={cohorts} setData={setSelectedCohort} defaultCohort={selectedCohort} />
@@ -164,9 +124,7 @@ function App() {
             pointTypes={pointTypes}
             students={students}
             onPending={() => console.log('pending')}
-            onError={() => {
-              setSnack({ open: true, msg: 'Error occurred whiled adding transaction!' })
-            }}
+            onError={err => setSnack({ open: true, msg: err || 'Error occurred whiled adding transaction!' })}
             onComplete={() => {
               setForceRefresh(!forceRefresh);
               setOpenDrawer(false);
