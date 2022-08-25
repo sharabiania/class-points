@@ -139,7 +139,7 @@ function findUser(username) {
     db.query(query, [username], (err, res) => {
       if (err) reject(err);
       if(!res || res.length !== 1) 
-        throw new Error('No user fount or, multiple users with the same username');
+        reject('No user found or, multiple users with the same username');
       resolve(res[0]);
     })
   });

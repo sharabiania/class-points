@@ -69,6 +69,7 @@ function addTransaction(sId, pId, note, onComplete, onPending, setProgress, setD
   
   if (onPending) onPending();
   fetch(apiUrl + '/transactions', {
+    credentials: 'include',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

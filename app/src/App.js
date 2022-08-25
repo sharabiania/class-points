@@ -3,10 +3,73 @@ import { CohortSelect } from './components/cohort-select';
 import './App.css';
 import { Leaderboard } from './components/leaderboard';
 import { TransactionHistory } from './components/transaction-history';
-import { AppBar, Skeleton, Stack, Box, Toolbar, Typography, Button, Container, Drawer, Divider, BottomNavigation, Snackbar } from '@mui/material';
+import { AppBar, Dialog, DialogTitle, Skeleton, Stack, Box, Toolbar, Typography, Button, Container, Drawer, Divider, BottomNavigation, Snackbar, TextField } from '@mui/material';
 import AddTransaction from './components/add-transaction';
 import Price from './components/price';
 import { apiUrl } from './config/config';
+
+
+function logout(setLoggedIn) {
+  fetch(apiUrl + '/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    }    
+  })
+    .then(res => {                
+      if(!res.ok) return null;
+      else return res.json();
+    })
+    .then(data => {
+      console.log('logout data: ', data);
+      if(!data) console.log('error loggin out');
+      else setLoggedIn('');
+    })
+    .catch(err => {
+      console.log('fetch logout error: ', err);    
+    })
+}
+
+
+function LoginDialog({ open, onClose, onSuccess, onError }) {
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+
+  function login(user, pass) {
+    fetch(apiUrl + '/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username: user, password: pass })
+    })
+      .then(res => {                
+        if(!res.ok) return null;
+        else return res.json();
+      })
+      .then(data => {
+        console.log('login data: ', data);
+        if(!data) onError('Error logging in');
+        else onSuccess(data);
+      })
+      .catch(err => {
+        console.log('fetch login error: ', err);
+        onError(err);
+      })
+  }
+  
+  
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Login</DialogTitle>
+      <TextField id='login-user' label='username' variant='outlined' value={user} onChange={e => setUser(e.target.value)} />
+      <TextField id='login-pass' label='password' variant='outlined' value={pass} onChange={e => setPass(e.target.value)} />
+      <Button onClick={() => login(user, pass)}>Login</Button>
+    </Dialog>
+  )
+}
 
 function App() {
 
@@ -22,13 +85,14 @@ function App() {
   const [snack, setSnack] = useState({ open: false, msg: '' });
   const [leaderLoad, setLeaderLoad] = useState(false);
   const [transLoad, setTransLoad] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState('');
 
   useEffect(() => {
     // get cohorts
     fetch(apiUrl + '/cohorts')
       .then(res => res.json())
-      .then(data => {
-        console.log(data);
+      .then(data => {        
         setCohorts(data)
       });
 
@@ -40,8 +104,7 @@ function App() {
     // get point types
     fetch(apiUrl + '/pointTypes')
       .then(res => res.json())
-      .then(data => {
-        console.log(data);
+      .then(data => {        
         setPointTypes(data)
       });
 
@@ -76,9 +139,17 @@ function App() {
 
   return (
     <div className="app">
+      <LoginDialog open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onSuccess={user => { setLoggedIn(user.username); setLoginOpen(false); }}
+        onError={err => { 
+          console.info('hello');
+          setSnack({ open: true, msg: err }) }} />
       <AppBar position="static">
         <Toolbar style={{ padding: '15px' }}>
           <CohortSelect cohorts={cohorts} setData={setSelectedCohort} defaultCohort={selectedCohort} />
+          {!loggedIn && <Button color="inherit" onClick={() => setLoginOpen(true)}>Login</Button>}
+          {loggedIn && <Button color="inherit" onClick={() => logout(setLoggedIn)}>Logout {loggedIn}</Button>}
           <Button color="inherit" onClick={() => setOpenDrawer(true)}>Give A Point!</Button>
         </Toolbar>
       </AppBar>
@@ -102,21 +173,21 @@ function App() {
             }} />
         </Drawer>
 
-       
-          {leaderLoad &&
-            <Stack direction="row" spacing={2}>
-              <Skeleton variant="circular" width={150} height={150} />
-              <Skeleton variant="text" width={600} height={150} />
-            </Stack>}
-          {!leaderLoad && <><Typography variant="h2">👑 Leaderboard</Typography><Divider sx={{ margin: "15px" }} /></>}
-         
+
+        {leaderLoad &&
+          <Stack direction="row" spacing={2}>
+            <Skeleton variant="circular" width={150} height={150} />
+            <Skeleton variant="text" width={600} height={150} />
+          </Stack>}
+        {!leaderLoad && <><Typography variant="h2">👑 Leaderboard</Typography><Divider sx={{ margin: "15px" }} /></>}
+
         <Container sx={{ margin: "20px" }}>
-        <Stack direction="row" spacing={10} sx={{display: "flex", justifyContent: "space-between"}}>
-          {leaderLoad && <Skeleton variant="rounded" width={300} height={450} />}
-          {!leaderLoad && <Leaderboard students={leaders} />}
-          <Price />
-        </Stack>
-          
+          <Stack direction="row" spacing={10} sx={{ display: "flex", justifyContent: "space-between" }}>
+            {leaderLoad && <Skeleton variant="rounded" width={300} height={450} />}
+            {!leaderLoad && <Leaderboard students={leaders} />}
+            <Price />
+          </Stack>
+
         </Container>
 
         {transLoad &&

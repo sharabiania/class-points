@@ -15,40 +15,37 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  console.log('req.url: ', req.sessionID);
-
-  try {
+  try {    
     const user = await findUser(req.body.username);
     console.log('user: ', user);
     if (!user) throw new Error('user not found.');
     const isPassCorrect = checkPassword(req.body.password, user.password)
     if (!user || !isPassCorrect)
       throw new Error('invalid user credentials');
-    console.log('req.session: ',req.session);
-    const payload = { user: user.username, id: user.id }
+
     req.session.save(() => {
       req.session.userId = user.id,
       req.session.username = user.username,
       req.session.loggedIn = true
       res.json(user);
     });
-    
-    
-
+        
   }
   catch(err) {
-    console.error(err);
+    console.error('login error: ', err);
     res.status(400).json(err);
   }
 });
 
 router.post('/logout', (req, res) => {
+  console.log('logout req.session: ', req.session);
   if (req.session.loggedIn) {
     req.session.destroy(() => {
       res.status(204).end();
     });
   }
   else {
+    console.log('session doesnt exist')
     res.status(404).end();
   }
 });
