@@ -59,20 +59,20 @@ async function addOrUpdateOldRank(stId, ranking) {
   const cohortId = await getCohortId(stId);
   const query2 = 'SELECT should_update FROM should_update_ranks WHERE c_id=?';
   const query3 = 'INSERT INTO old_ranks (st_id, ranking) VALUES (?, ?) ON DUPLICATE KEY UPDATE st_id=?, ranking=?;';
-  const shouldUpdate = await runQuery(query2, [cohortId]);
+  const { should_update: shouldUpdate } = await runQuery(query2, [cohortId]);
   if (shouldUpdate) {
     await runQuery(query3, [stId, ranking, stId, ranking]);
-    await updateShouldUpdate(cohortId, false);
+    await updateShouldUpdate(cohortId, 0);
   }
 }
 
 function runQuery(query, params) {
-  console.log('running query: ', query, 'params: ', params);
+  // console.log('running query: ', query, 'params: ', params);
   return new Promise((resolve, reject) => {
     db.query(query, params, (err, res) => {
       if (err) reject(err);
-      console.log('query res: ', res);
-      if(!res) resolve('success');
+      // console.log('query res: ', res);
+      if (!res) resolve('success');
       else resolve(res[0]);
     });
   });
@@ -89,10 +89,10 @@ function getTransactions() {
   });
 }
 
-async function addTransaction(studentId, pointTypeId, notes) {  
+async function addTransaction(studentId, pointTypeId, notes) {
   const cohortId = await getCohortId(studentId);
   console.log('addTrans c_id: ', cohortId);
-  await updateShouldUpdate(cohortId, true);
+  await updateShouldUpdate(cohortId, 1);
   return new Promise((resolve, reject) => {
     const query = 'INSERT INTO transactions (st_id, ty_id, note) values (?, ?, ?)';
     db.query(query, [studentId, pointTypeId, notes], (err, res) => {
