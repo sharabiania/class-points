@@ -123,6 +123,28 @@ function addCohort(name) {
   });
 }
 
+function createUser(username, hashedPassword, cohortId) {
+  return new Promise((resolve, reject) => {
+    const query = 'INSERT INTO users (username, password, c_id) VALUE (?, ?, ?);';
+    db.query(query, [username, hashedPassword, cohortId], (err, res) => {
+      if (err) reject(err);
+      resolve(res);
+    });
+  });
+}
+
+function findUser(username) {
+  return new Promise((resolve, reject) => {
+    const query = 'SELECT * FROM users WHERE username=?;';
+    db.query(query, [username], (err, res) => {
+      if (err) reject(err);
+      if(!res || res.length !== 1) 
+        throw new Error('No user fount or, multiple users with the same username');
+      resolve(res[0]);
+    })
+  });
+}
+
 module.exports = {
   addStudent,
   getStudents,
@@ -137,5 +159,8 @@ module.exports = {
 
   addCohort,
   getCohorts,
-  getActiveCohort
+  getActiveCohort,
+
+  createUser,
+  findUser
 };

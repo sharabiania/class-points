@@ -1,9 +1,18 @@
 const express = require('express');
+const session = require('express-session')
 const cors = require('cors');
 const apiRoutes = require('./routes');
 
 const app = express();
 const port = process.env.PORT;
+
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}))
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN
