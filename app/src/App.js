@@ -6,15 +6,20 @@ import { TransactionHistory } from './components/transaction-history';
 import {
   AppBar, Skeleton, Stack, Box,
   Toolbar, Typography, Button, Container, Drawer,
-  Divider, BottomNavigation, Snackbar
+  Divider, BottomNavigation, Snackbar, Fab
 } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import LoadingButton from '@mui/lab/LoadingButton';
+
 import AddTransaction from './components/add-transaction';
 import Price from './components/price';
 import LoginDialog from './components/login-dialog';
 import { apiUrl } from './config/config';
 
 
-function logout(setLoggedIn) {
+function logout(setLoggedIn, setProgress) {
+  setProgress(true);
   fetch(apiUrl + '/auth/logout', {
     method: 'POST',
     credentials: 'include',
@@ -30,6 +35,7 @@ function logout(setLoggedIn) {
     .catch(err => {
       console.log('fetch logout error: ', err);
     })
+    .finally(() => setProgress(false));
 }
 
 
@@ -49,6 +55,7 @@ function App() {
   const [transLoad, setTransLoad] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState('');
+  const [logoutProgress, setLogoutProgress] = useState(false);
 
   useEffect(() => {
     // get cohorts
@@ -109,8 +116,20 @@ function App() {
         <Toolbar style={{ padding: '15px' }}>
           <CohortSelect cohorts={cohorts} setData={setSelectedCohort} defaultCohort={selectedCohort} />
           {!loggedIn && <Button color="inherit" onClick={() => setLoginOpen(true)}>Login</Button>}
-          {loggedIn && <Button color="inherit" onClick={() => logout(setLoggedIn)}>Logout {loggedIn}</Button>}
-          <Button color="inherit" onClick={() => setOpenDrawer(true)}>Give A Point!</Button>
+          {loggedIn && <LoadingButton
+            color="inherit"
+            onClick={() => logout(setLoggedIn, setLogoutProgress)}
+            loadingPosition='end'
+            endIcon={<LogoutIcon />}
+            loading={logoutProgress}>
+            Logout {loggedIn}
+          </LoadingButton>}
+          {loggedIn && <Fab
+            style={{ position: 'fixed', bottom: '30px', right: '30px' }}
+            color='primary'
+            onClick={() => setOpenDrawer(true)}>
+            <ControlPointIcon />
+          </Fab>}
         </Toolbar>
       </AppBar>
 
@@ -169,7 +188,7 @@ function App() {
         <BottomNavigation sx={{ backgroundColor: "gray" }}>
 
         </BottomNavigation>
-        <i>version 0.0.6</i>
+        <i>version 0.0.7</i>
       </Box>
       <Snackbar
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

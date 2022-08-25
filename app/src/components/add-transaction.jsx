@@ -66,7 +66,7 @@ function addTransaction(sId, pId, note, onComplete, onPending, setProgress, setD
   if (!sId || !pId) return;
   setProgress(true);
   setDisabled(true);
-  
+
   if (onPending) onPending();
   fetch(apiUrl + '/transactions', {
     credentials: 'include',
@@ -79,7 +79,7 @@ function addTransaction(sId, pId, note, onComplete, onPending, setProgress, setD
     })
   })
     .then(res => {
-      if (res.status === 403) if (onError) onError('You must login!')
+      if (res.status === 403) { if (onError) onError('You must login!'); }
       else if (onComplete) onComplete();
     })
     .catch(err => {
