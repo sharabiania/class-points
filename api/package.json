@@ -1,4 +1,10 @@
 {
+  "author": {
+    "name": "Ali Sharabiani",
+    "url": "http://sharabiani.codes"
+  },
+  "description": "API for Class Points",
+  "version": "1.0.0",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
