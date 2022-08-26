@@ -13,7 +13,6 @@ router.get('/', async (req, res) => {
 
 router.post('/', withAuth, async (req, res) => {
   const { sId, pId, note } = req.body;
-  console.log('req.body: ', req.body);
   if (!sId) res.send(400).json('\'sId\' is required.');
   if (!pId) res.send(400).json('\'pId\' is required.');
   try {

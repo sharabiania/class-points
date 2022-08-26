@@ -42,10 +42,6 @@ function getOldRanks(cohortId) {
   });
 }
 
-async function updateShouldUpdate(cohortId, shouldUpdate) {
-  const query = 'INSERT INTO should_update_ranks (c_id, should_update) value (?, ?) ON DUPLICATE KEY UPDATE c_id=?, should_update=?;';
-  return await runQuery(query, [cohortId, shouldUpdate, cohortId, shouldUpdate]);
-}
 
 async function getCohortId(stId) {
   console.log('getCohortId - stId: ', stId);
@@ -54,36 +50,18 @@ async function getCohortId(stId) {
   return cohortId;
 }
 
-async function addOrUpdateOldRank(stId, ranking) {
-
-  const cohortId = await getCohortId(stId);
-  const query2 = 'SELECT should_update FROM should_update_ranks WHERE c_id=?';
-  const query3 = 'INSERT INTO old_ranks (st_id, ranking) VALUES (?, ?) ON DUPLICATE KEY UPDATE st_id=?, ranking=?;';
-  let shouldUpdate = true;
-  try {
-    shouldUpdate = (await runQuery(query2, [cohortId])).should_update;
-  }
-  catch(err) {
-    shouldUpdate = true;
-  }
-  if (shouldUpdate) {
-    await runQuery(query3, [stId, ranking, stId, ranking]);
-    await updateShouldUpdate(cohortId, 0);
-  }
-}
-
 function runQuery(query, params) {
   console.log('running query: ', query, 'params: ', params);
   return new Promise((resolve, reject) => {
     db.query(query, params, (err, res) => {
-      if (err) reject(err);
-      console.log('query res: ', res);
-      if (!res || res === []) resolve([]);
-      else resolve(res[0]);
+      if (err) return reject(err);
+      console.log('runQuery res: ', res);
+      if (!res || res === []) return resolve([]);
+      else if (res.length === 2) return resolve(res[0]);
+      else return resolve(res);
     });
   });
 }
-
 
 function getTransactions() {
   return new Promise((resolve, reject) => {
@@ -97,16 +75,19 @@ function getTransactions() {
 
 async function addTransaction(studentId, pointTypeId, notes) {
   const cohortId = await getCohortId(studentId);
-  console.log('addTrans c_id: ', cohortId);
-  await updateShouldUpdate(cohortId, 1);
-  return new Promise((resolve, reject) => {
-    const query = 'INSERT INTO transactions (st_id, ty_id, note) values (?, ?, ?)';
-    db.query(query, [studentId, pointTypeId, notes], (err, res) => {
-      if (err) reject(err);
-      resolve(res);
-    });
+  /// store the current ranks (old)
+  const leaders = await getLeaderboard(cohortId);
+  for (const leader of leaders) {
+    await saveOldRank(leader.st_id, leader.ranking)
+  }
+  /// add transaction, this will make new rankings 
+  const query = 'INSERT INTO transactions (st_id, ty_id, note) VALUE (?, ?, ?)';
+  return await runQuery(query, [studentId, pointTypeId, notes]);  
+}
 
-  });
+async function saveOldRank(st_id, ranking) {
+  const query='INSERT INTO old_ranks (st_id, ranking) VALUE (?, ?) ON DUPLICATE KEY UPDATE st_id=?, ranking=?;';
+  await runQuery(query, [st_id, ranking, st_id, ranking]);
 }
 
 function getTransactionHistory(pageNumber, pageSize = 20) {
@@ -208,7 +189,6 @@ module.exports = {
   getStudents,
   getLeaderboard,
   getOldRanks,
-  addOrUpdateOldRank,
 
   addTransaction,
   getTransactions,

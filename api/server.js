@@ -4,7 +4,7 @@ const cors = require('cors');
 const apiRoutes = require('./routes');
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.API_PORT;
 
 
 app.use(session({

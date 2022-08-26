@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getStudents, addStudent, getLeaderboard, getOldRanks, addOrUpdateOldRank } = require('../services/db-service');
+const { getStudents, addStudent, getLeaderboard, getOldRanks } = require('../services/db-service');
 
 router.get('/:cohortId', async (req, res) => {
   try {
@@ -36,14 +36,11 @@ router.get('/leaderboard/:cohortId', async (req, res) => {
         x.old_rank = rankMap[x.st_id];
       else x.old_rank = x.ranking;
       x.up_down = x.old_rank - x.ranking;
-
-      await addOrUpdateOldRank(x.st_id, x.ranking);
-
     }
 
     res.send(leaders);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json(err);
   }
 });

@@ -2,6 +2,15 @@ CREATE DATABASE IF NOT EXISTS class_points_dev;
 
 USE class_points_dev;
 
+CREATE TABLE users (
+  id INT NOT NULL AUTO_INCREMENT,
+  username varchar(50) NOT NULL,
+  `password` varchar(200) NOT NULL,
+  c_id INT,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `FK_user_cohort_id` FOREIGN KEY (`c_id`) REFERENCES `cohorts` (`id`)
+);
+
 CREATE TABLE `cohorts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) DEFAULT NULL,
@@ -37,12 +46,6 @@ CREATE TABLE `students` (
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-
-create table should_update_ranks (
-	c_id int not null unique,
-  should_update bool default true,  
-  constraint FK_should_update_cohort_id foreign key (c_id) references cohorts(id)
-);
 
 create table old_ranks (
 	st_id int not null unique,

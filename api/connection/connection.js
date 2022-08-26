@@ -1,6 +1,10 @@
 const mysql = require('mysql2');
-
-require('dotenv').config();
+const path = require('path');
+console.info('Environment is: ', process.env.CLASS_POINTS_ENV);
+if (process.env.CLASS_POINTS_ENV)
+  require('dotenv').config({ path: path.join(__dirname, `../.env.${process.env.CLASS_POINTS_ENV}`)});
+else 
+  require('dotenv').config();
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
